@@ -17,7 +17,7 @@ const perPage = 40;
 onScroll();
 onToTopBtn();
 
-const onSearchForm = e => {
+const onSearchForm = async e => {
   e.preventDefault();
   window.scrollTo({ top: 0 });
   page = 1;
@@ -30,8 +30,8 @@ const onSearchForm = e => {
     return;
   }
 
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
+ try {
+    const { data } = await fetchImages(query, page, perPage);
       if (data.totalHits === 0) {
         alertNoImagesFound();
       } else {
@@ -43,19 +43,20 @@ const onSearchForm = e => {
           loadMoreBtn.classList.remove('is-hidden');
         }
       }
-    })
-    .catch(error => console.log(error))
-    .finally(() => {
-      searchForm.reset();
-    });
-};
+    } catch (error) {
+        console.log(error);
+      } finally {
+        searchForm.reset();
+      }
+    };
 
-const onLoadMoreBtn = () => {
+const onLoadMoreBtn = async () => {
   page += 1;
   simpleLightBox.destroy();
 
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
+  try {
+    const { data } = await fetchImages(query, page, perPage);
+
       renderGallery(data.hits);
       simpleLightBox = new SimpleLightbox('.gallery a').refresh();
 
@@ -65,8 +66,9 @@ const onLoadMoreBtn = () => {
         loadMoreBtn.classList.add('is-hidden');
         alertEndOfSearch();
       }
-    })
-    .catch(error => console.log(error));
+    }catch (error) {
+    console.log(error);
+  }
 };
 
 const alertImagesFound = data => {
